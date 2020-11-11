@@ -1,3 +1,4 @@
+const { get } = require('http')
 const util = require('util')
 const getAddressAsync = util.promisify(getAddress)
 
@@ -35,13 +36,40 @@ function getAddress(idUsuario, callback) {
         return callback(null, {
             street: 'rua 307',
             number: 110
-        }, 2000)
-    })
-
+        })
+    }, 2000)
 }
 
 
+main()
+async function main() {
+    try {
+        console.time('medida-promise')
+        const user = await getUser()
+       // const phone = await getPhone(user.id)
+       // const address = await getAddressAsync(user.id)
 
+        const resultado = await Promise.all([
+            getPhone(user.id),
+            getAddressAsync(user.id)
+        ])
+
+        const address = resultado[1]
+        const phone = resultado[0]
+
+        console.log(`
+            Nome: ${user.nome}
+            Endereco: ${address.street}, ${address.number}
+            Telefone: (${phone.ddd}) ${phone.phone}`)
+        console.timeEnd('medida-promise')
+        } catch (error) {
+        console.log('DEU RIM', error)
+        
+    }
+}
+
+
+/*
 const userPromise = getUser()
 // para manipular o sucesso usamos a função .then
 // para manipular erros, usamos o .cath
